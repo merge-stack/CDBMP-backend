@@ -48,6 +48,12 @@ export class MapAreasSeedService {
           `Processing chunk ${i + 1}/${chunks.length} (${chunk.length} features)...`,
         );
 
+        // Add 'type' to each feature's properties before processing
+        for (const feature of chunk as any[]) {
+          if (!feature.properties) feature.properties = {};
+          feature.properties.type = 'attrazioni';
+        }
+
         const chunkResult = await this.processChunk(chunk);
         insertedCount += chunkResult.insertedCount;
         skippedCount += chunkResult.skippedCount;
@@ -181,6 +187,10 @@ export class MapAreasSeedService {
           skippedCount++;
           continue;
         }
+
+        // Ensure 'type' is set in properties
+        if (!feature.properties) feature.properties = {};
+        feature.properties.type = feature.geometry?.type || null;
 
         const mapAreaData = {
           type: feature.type || 'Feature',
