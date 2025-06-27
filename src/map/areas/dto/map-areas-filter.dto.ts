@@ -48,4 +48,9 @@ export class MapAreasFilterDto {
   @IsOptional()
   @IsString()
   participation?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by type' })
+  @IsOptional()
+  @IsString()
+  type?: string;
 }

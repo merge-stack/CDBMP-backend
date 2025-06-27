@@ -16,6 +16,11 @@ export class MapAreasService {
       // Build MongoDB query based on filters
       const query: any = {};
 
+      if (filters.type) {
+        const typeLower = filters.type.toLowerCase();
+        query['properties.type'] = { $regex: typeLower, $options: 'i' };
+      }
+
       if (filters.area) {
         const areaLower = filters.area.toLowerCase();
         query.$or = [
