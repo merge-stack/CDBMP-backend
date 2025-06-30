@@ -73,5 +73,4 @@ jobs:
 
           # Build and restart the Docker container
           cd ~root/cdbmp_maps
-          docker-compose down backend
           docker-compose up -d --build backend
