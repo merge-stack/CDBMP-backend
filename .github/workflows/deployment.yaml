@@ -47,7 +47,7 @@ jobs:
     #     tar -czf deployment.tar.gz deployment/
 
     - name: Tar build files
-      run: tar -czf build.tar.gz dist Dockerfile.production
+      run: tar -czf build.tar.gz dist Dockerfile.production node_modules
 
     - name: Deploy to remote server
       uses: appleboy/scp-action@v0.1.4
