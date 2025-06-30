@@ -67,6 +67,8 @@ jobs:
         script: |
           # Extract the build files to the deployment directory
           tar -xzf /tmp/build.tar.gz -C ~root/cdbmp_maps/backend
+          cp Dockerfile.production Dockerfile
+          rm Dockerfile.production
           rm /tmp/build.tar.gz
 
           # Build and restart the Docker container
