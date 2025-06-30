@@ -1,25 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsOptional,
-  IsString,
-  IsNumber,
-  Min,
-  IsObject,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-
-class BudgetRangeDto {
-  @ApiPropertyOptional({ description: 'Minimum budget value' })
-  @IsNumber()
-  @Min(0)
-  min: number;
-
-  @ApiPropertyOptional({ description: 'Maximum budget value' })
-  @IsNumber()
-  @Min(0)
-  max: number;
-}
+import { IsOptional, IsString } from 'class-validator';
 
 export class MapAreasFilterDto {
   @ApiPropertyOptional({ description: 'Filter by area name' })
@@ -32,25 +12,21 @@ export class MapAreasFilterDto {
   @IsString()
   intervention?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by budget range' })
+  @ApiPropertyOptional({ description: 'Minimum budget value' })
   @IsOptional()
-  @IsObject()
-  @ValidateNested()
-  @Type(() => BudgetRangeDto)
-  budget?: BudgetRangeDto;
+  budget_min?: number;
+
+  @ApiPropertyOptional({ description: 'Maximum budget value' })
+  @IsOptional()
+  budget_max?: number;
 
   @ApiPropertyOptional({ description: 'Filter by priority level' })
   @IsOptional()
   @IsString()
   priority?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by participation level' })
-  @IsOptional()
-  @IsString()
-  participation?: string;
-
   @ApiPropertyOptional({ description: 'Filter by type' })
   @IsOptional()
   @IsString()
-  type?: string;
+  layerType?: string;
 }

@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
+// import { randomUUID } from 'crypto';
 import {
   MapArea,
   MapAreaDocument,
@@ -51,7 +52,9 @@ export class MapAreasSeedService {
         // Add 'type' to each feature's properties before processing
         for (const feature of chunk as any[]) {
           if (!feature.properties) feature.properties = {};
-          feature.properties.type = 'attrazioni';
+          feature.properties.layerType = 'sentieri';
+          // Generate unique UUID for each feature
+          // feature.properties.id = randomUUID();
         }
 
         const chunkResult = await this.processChunk(chunk);

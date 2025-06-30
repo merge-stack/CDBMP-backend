@@ -16,9 +16,9 @@ export class MapAreasService {
       // Build MongoDB query based on filters
       const query: any = {};
 
-      if (filters.type) {
-        const typeLower = filters.type.toLowerCase();
-        query['properties.type'] = { $regex: typeLower, $options: 'i' };
+      if (filters.layerType) {
+        const typeLower = filters.layerType.toLowerCase();
+        query['properties.layerType'] = { $regex: typeLower, $options: 'i' };
       }
 
       if (filters.area) {
@@ -32,35 +32,21 @@ export class MapAreasService {
 
       if (filters.intervention) {
         const interventionLower = filters.intervention.toLowerCase();
-        const interventionQuery = {
-          $or: [
-            {
-              'properties.tipologia': {
-                $regex: interventionLower,
-                $options: 'i',
-              },
-            },
-            {
-              'properties.esito_cfs': {
-                $regex: interventionLower,
-                $options: 'i',
-              },
-            },
-          ],
+        query['properties.des_classe'] = {
+          $regex: interventionLower,
+          $options: 'i',
         };
-
-        if (query.$or) {
-          query.$and = [query.$or, interventionQuery];
-          delete query.$or;
-        } else {
-          query.$or = interventionQuery.$or;
-        }
       }
 
-      if (filters.budget) {
-        query['properties.area_tot'] = {
-          $gte: filters.budget?.min || 0,
-          $lte: filters.budget?.max || Number.MAX_VALUE,
+      if (filters.budget_min) {
+        query['properties.budget_min'] = {
+          $gte: Number(filters.budget_min) || 0,
+        };
+      }
+
+      if (filters.budget_max) {
+        query['properties.budget_max'] = {
+          $lte: Number(filters.budget_max) || Number.MAX_VALUE,
         };
       }
 
@@ -68,14 +54,6 @@ export class MapAreasService {
         const priorityLower = filters.priority.toLowerCase();
         query['properties.des_classe'] = {
           $regex: priorityLower,
-          $options: 'i',
-        };
-      }
-
-      if (filters.participation) {
-        const participationLower = filters.participation.toLowerCase();
-        query['properties.provincia'] = {
-          $regex: participationLower,
           $options: 'i',
         };
       }
