@@ -5,7 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import databaseConfig from './database/config/database.config';
 import authConfig from './auth/config/auth.config';
 import appConfig from './config/app.config';
-import mailConfig from './mail/config/mail.config';
+// import mailConfig from './mail/config/mail.config';
 import fileConfig from './files/config/file.config';
 import facebookConfig from './auth-facebook/config/facebook.config';
 import googleConfig from './auth-google/config/google.config';
@@ -18,7 +18,7 @@ import { AuthFacebookModule } from './auth-facebook/auth-facebook.module';
 import { AuthGoogleModule } from './auth-google/auth-google.module';
 import { HeaderResolver, I18nModule } from 'nestjs-i18n';
 import { TypeOrmConfigService } from './database/typeorm-config.service';
-import { MailModule } from './mail/mail.module';
+// import { MailModule } from './mail/mail.module';
 import { HomeModule } from './home/home.module';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { AllConfigType } from './config/config.type';
@@ -50,7 +50,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
         databaseConfig,
         authConfig,
         appConfig,
-        mailConfig,
+        // mailConfig,
         fileConfig,
         facebookConfig,
         googleConfig,
@@ -89,7 +89,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     AuthGoogleModule,
     AuthAppleModule,
     SessionModule,
-    MailModule,
+    // MailModule,
     MailerModule,
     HomeModule,
   ],
