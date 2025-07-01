@@ -9,6 +9,7 @@ import {
   IsUrl,
   Max,
   Min,
+  IsArray,
 } from 'class-validator';
 
 enum Environment {
@@ -47,10 +48,23 @@ class EnvironmentVariablesValidator {
   @IsString()
   @IsOptional()
   APP_HEADER_LANGUAGE: string;
+
+  @IsArray()
+  @IsOptional()
+  CORS_ORIGINS: string[];
 }
 
 export default registerAs<AppConfig>('app', () => {
   validateConfig(process.env, EnvironmentVariablesValidator);
+
+  // Parse CORS origins from environment variable or use defaults
+  const corsOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
+    : [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'https://mappa.comunitadelboscomontepisano.it',
+      ];
 
   return {
     nodeEnv: process.env.NODE_ENV || 'development',
@@ -66,5 +80,6 @@ export default registerAs<AppConfig>('app', () => {
     apiPrefix: process.env.API_PREFIX || 'api',
     fallbackLanguage: process.env.APP_FALLBACK_LANGUAGE || 'en',
     headerLanguage: process.env.APP_HEADER_LANGUAGE || 'x-custom-lang',
+    corsOrigins,
   };
 });
