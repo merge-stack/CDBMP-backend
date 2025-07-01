@@ -14,11 +14,18 @@ import { AllConfigType } from './config/config.type';
 import { ResolvePromisesInterceptor } from './utils/serializer.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   const configService = app.get(ConfigService<AllConfigType>);
 
   app.enableShutdownHooks();
+
+  // Configure CORS
+  app.enableCors({
+    origin: configService.getOrThrow('app.corsOrigins', { infer: true }),
+    credentials: true,
+  });
+
   app.setGlobalPrefix(
     configService.getOrThrow('app.apiPrefix', { infer: true }),
     {
