@@ -57,6 +57,18 @@ async function bootstrap() {
           console.log(clearResult.message);
           break;
 
+        case 'clearByLayerType':
+          const layerType = process.argv[3];
+          if (!layerType) {
+            console.error('Please provide a layerType value');
+            process.exit(1);
+          }
+          const clearByLayerResult = await seedService.clearByFilter({
+            'properties.layerType': layerType,
+          });
+          console.log(clearByLayerResult.message);
+          break;
+
         default:
           console.log(`
 Usage: npm run seed:map-areas <command> [path]
@@ -66,12 +78,14 @@ Commands:
   directory <path> - Seed from all GeoJSON files in a directory
   stats           - Show collection statistics
   clear           - Clear all data from collection
+  clearByLayerType <layerType> - Clear all data with a specific layerType
 
 Examples:
-  npm run seed:map-areas file ./files/sisteco.geojson
+  npm run seed:map-areas file ./files/sisteco_default_areas.geojson
   npm run seed:map-areas directory ./files
   npm run seed:map-areas stats
   npm run seed:map-areas clear
+  npm run seed:map-areas clearByLayerType sentieri
         `);
       }
     } catch (error) {

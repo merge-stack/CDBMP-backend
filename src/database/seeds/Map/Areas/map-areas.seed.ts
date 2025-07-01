@@ -4,11 +4,14 @@ import { Model } from 'mongoose';
 import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
-// import { randomUUID } from 'crypto';
+import { randomUUID } from 'crypto';
 import {
   MapArea,
   MapAreaDocument,
 } from '../../../../map/areas/schemas/map-area.schema';
+import rewind from '@turf/rewind';
+import booleanValid from '@turf/boolean-valid';
+import cleanCoords from '@turf/clean-coords';
 
 @Injectable()
 export class MapAreasSeedService {
@@ -39,6 +42,7 @@ export class MapAreasSeedService {
       let insertedCount = 0;
       let skippedCount = 0;
       let invalidGeometryCount = 0;
+      let fixedCount = 0;
 
       // Process features in chunks
       const chunks = this.chunkArray(data.features, this.CHUNK_SIZE);
@@ -52,9 +56,41 @@ export class MapAreasSeedService {
         // Add 'type' to each feature's properties before processing
         for (const feature of chunk as any[]) {
           if (!feature.properties) feature.properties = {};
-          feature.properties.layerType = 'sentieri';
-          // Generate unique UUID for each feature
-          // feature.properties.id = randomUUID();
+          feature.properties.layerType = 'incendio_2018';
+          feature.properties.ID = randomUUID();
+
+          // Only fix geometry if invalid
+          let geometryToInsert = feature.geometry as any;
+          if (!booleanValid(feature as any)) {
+            console.warn(
+              'Feature has invalid geometry, attempting to fix:',
+              feature.properties.id,
+              feature.properties.code || '',
+            );
+            try {
+              const fixed = this.fixInvalidGeoJSONGeometry(feature);
+              if (booleanValid(fixed as any)) {
+                geometryToInsert = (fixed as any).geometry;
+                fixedCount++;
+              } else {
+                console.warn(
+                  'Feature still invalid after fix, skipping:',
+                  feature.properties.id,
+                );
+                continue; // Skip this feature
+              }
+            } catch (e) {
+              console.warn(
+                'Error fixing geometry, skipping:',
+                feature.properties.id,
+                e,
+              );
+              continue; // Skip this feature
+            }
+          }
+
+          // Use geometryToInsert for insertion
+          feature.geometry = geometryToInsert;
         }
 
         const chunkResult = await this.processChunk(chunk);
@@ -65,7 +101,7 @@ export class MapAreasSeedService {
 
       return {
         success: true,
-        message: `Seeding completed. Inserted: ${insertedCount}, Skipped: ${skippedCount}, Invalid Geometry: ${invalidGeometryCount}`,
+        message: `Seeding completed. Inserted: ${insertedCount}, Skipped: ${skippedCount}, Invalid Geometry: ${invalidGeometryCount}, Fixed: ${fixedCount}`,
         count: insertedCount,
       };
     } catch (error) {
@@ -112,7 +148,7 @@ export class MapAreasSeedService {
     // Prepare bulk operations
     const bulkOps: any[] = [];
     for (const feature of validFeatures) {
-      const featureId = feature.properties?.id;
+      const featureId = feature.properties?.ID;
 
       if (existingIds.has(featureId)) {
         skippedCount++;
@@ -156,7 +192,7 @@ export class MapAreasSeedService {
 
   private async getExistingIds(features: any[]): Promise<Set<any>> {
     const ids = features
-      .map((f) => f.properties?.id)
+      .map((f) => f.properties?.ID)
       .filter((id) => id !== undefined);
 
     if (ids.length === 0) {
@@ -164,12 +200,12 @@ export class MapAreasSeedService {
     }
 
     const existingDocs = await this.mapAreaModel
-      .find({ 'properties.id': { $in: ids } })
-      .select('properties.id')
+      .find({ 'properties.ID': { $in: ids } })
+      .select('properties.ID')
       .lean()
       .exec();
 
-    return new Set(existingDocs.map((doc) => doc.properties.id));
+    return new Set(existingDocs.map((doc) => doc.properties.ID));
   }
 
   private async fallbackToIndividualInserts(
@@ -184,7 +220,7 @@ export class MapAreasSeedService {
 
     for (const feature of features) {
       try {
-        const featureId = feature.properties?.id;
+        const featureId = feature.properties?.ID;
 
         if (existingIds.has(featureId)) {
           skippedCount++;
@@ -193,7 +229,7 @@ export class MapAreasSeedService {
 
         // Ensure 'type' is set in properties
         if (!feature.properties) feature.properties = {};
-        feature.properties.type = feature.geometry?.type || null;
+        feature.properties.layerType = feature.geometry?.layerType || null;
 
         const mapAreaData = {
           type: feature.type || 'Feature',
@@ -342,5 +378,42 @@ export class MapAreasSeedService {
       default:
         return false;
     }
+  }
+
+  async clearByFilter(filter: any): Promise<{
+    success: boolean;
+    message: string;
+    deletedCount: number;
+  }> {
+    try {
+      const result = await this.mapAreaModel.deleteMany(filter).exec();
+      return {
+        success: true,
+        message: `Deleted ${result.deletedCount} documents matching filter.`,
+        deletedCount: result.deletedCount,
+      };
+    } catch (error) {
+      console.error('Clear by filter error:', error);
+      return {
+        success: false,
+        message: `Failed to delete by filter: ${error.message}`,
+        deletedCount: 0,
+      };
+    }
+  }
+
+  fixInvalidGeoJSONGeometry(geojsonFeature: any) {
+    if (!geojsonFeature?.geometry) {
+      throw new Error('Invalid GeoJSON feature: Missing geometry.');
+    }
+
+    // Step 1: Ensure correct winding order
+    const rewound = rewind(geojsonFeature, { reverse: true });
+
+    // Step 2: Clean coordinates
+    const cleaned = cleanCoords(rewound);
+
+    // Step 3: Return cleaned feature
+    return cleaned;
   }
 }

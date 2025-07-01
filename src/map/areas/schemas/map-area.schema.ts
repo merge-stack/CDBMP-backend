@@ -32,3 +32,6 @@ export const MapAreaSchema = SchemaFactory.createForClass(MapArea);
 
 // Add geospatial index for efficient spatial queries
 MapAreaSchema.index({ geometry: '2dsphere' });
+
+// Add unique index on properties.ID to prevent duplicates
+MapAreaSchema.index({ 'properties.ID': 1 }, { unique: true });
