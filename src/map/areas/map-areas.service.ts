@@ -23,16 +23,12 @@ export class MapAreasService {
 
       if (filters.area) {
         const areaLower = filters.area.toLowerCase();
-        query.$or = [
-          { 'properties.comune': { $regex: areaLower, $options: 'i' } },
-          { 'properties.localita': { $regex: areaLower, $options: 'i' } },
-          { 'properties.codice_rt': { $regex: areaLower, $options: 'i' } },
-        ];
+        query['properties.stato_area'] = { $regex: areaLower, $options: 'i' };
       }
 
       if (filters.intervention) {
         const interventionLower = filters.intervention.toLowerCase();
-        query['properties.des_classe'] = {
+        query['properties.tipo_intervento'] = {
           $regex: interventionLower,
           $options: 'i',
         };
