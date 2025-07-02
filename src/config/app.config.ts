@@ -63,6 +63,7 @@ export default registerAs<AppConfig>('app', () => {
     : [
         'http://localhost:3000',
         'http://localhost:3001',
+        'http://mappa.comunitadelboscomontepisano.it',
         'https://mappa.comunitadelboscomontepisano.it',
       ];
 
