@@ -50,8 +50,7 @@ export class MapAreasService {
         const serviziEcosistemiciLower =
           filters.servizi_ecosistemici.toLowerCase();
         query['properties.servizi_ecosistemici'] = {
-          $regex: serviziEcosistemiciLower,
-          $options: 'i',
+          $elemMatch: { $regex: serviziEcosistemiciLower, $options: 'i' },
         };
       }
 
