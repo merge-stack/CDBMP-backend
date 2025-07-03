@@ -23,16 +23,12 @@ export class MapAreasService {
 
       if (filters.area) {
         const areaLower = filters.area.toLowerCase();
-        query.$or = [
-          { 'properties.comune': { $regex: areaLower, $options: 'i' } },
-          { 'properties.localita': { $regex: areaLower, $options: 'i' } },
-          { 'properties.codice_rt': { $regex: areaLower, $options: 'i' } },
-        ];
+        query['properties.stato_area'] = { $regex: areaLower, $options: 'i' };
       }
 
       if (filters.intervention) {
         const interventionLower = filters.intervention.toLowerCase();
-        query['properties.des_classe'] = {
+        query['properties.tipo_intervento'] = {
           $regex: interventionLower,
           $options: 'i',
         };
@@ -50,11 +46,11 @@ export class MapAreasService {
         };
       }
 
-      if (filters.priority) {
-        const priorityLower = filters.priority.toLowerCase();
-        query['properties.des_classe'] = {
-          $regex: priorityLower,
-          $options: 'i',
+      if (filters.servizi_ecosistemici) {
+        const serviziEcosistemiciLower =
+          filters.servizi_ecosistemici.toLowerCase();
+        query['properties.servizi_ecosistemici'] = {
+          $elemMatch: { $regex: serviziEcosistemiciLower, $options: 'i' },
         };
       }
 
