@@ -56,7 +56,7 @@ export class MapAreasSeedService {
         // Add 'type' to each feature's properties before processing
         for (const feature of chunk as any[]) {
           if (!feature.properties) feature.properties = {};
-          feature.properties.layerType = 'incendio_2018';
+          feature.properties.layerType = 'default';
           feature.properties.ID = randomUUID();
 
           // Only fix geometry if invalid
@@ -77,6 +77,7 @@ export class MapAreasSeedService {
                   'Feature still invalid after fix, skipping:',
                   feature.properties.id,
                 );
+                skippedCount++;
                 continue; // Skip this feature
               }
             } catch (e) {
@@ -85,6 +86,7 @@ export class MapAreasSeedService {
                 feature.properties.id,
                 e,
               );
+              skippedCount++;
               continue; // Skip this feature
             }
           }
