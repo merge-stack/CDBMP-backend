@@ -46,10 +46,11 @@ export class MapAreasService {
         };
       }
 
-      if (filters.priority) {
-        const priorityLower = filters.priority.toLowerCase();
-        query['properties.des_classe'] = {
-          $regex: priorityLower,
+      if (filters.servizi_ecosistemici) {
+        const serviziEcosistemiciLower =
+          filters.servizi_ecosistemici.toLowerCase();
+        query['properties.servizi_ecosistemici'] = {
+          $regex: serviziEcosistemiciLower,
           $options: 'i',
         };
       }

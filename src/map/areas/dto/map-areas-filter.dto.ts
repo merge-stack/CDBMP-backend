@@ -20,10 +20,10 @@ export class MapAreasFilterDto {
   @IsOptional()
   budget_max?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by priority level' })
+  @ApiPropertyOptional({ description: 'Filter by Servizi Ecosistemici value' })
   @IsOptional()
   @IsString()
-  priority?: string;
+  servizi_ecosistemici?: string;
 
   @ApiPropertyOptional({ description: 'Filter by type' })
   @IsOptional()
