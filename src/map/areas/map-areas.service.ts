@@ -21,36 +21,41 @@ export class MapAreasService {
         query['properties.layerType'] = { $regex: typeLower, $options: 'i' };
       }
 
-      if (filters.area) {
-        const areaLower = filters.area.toLowerCase();
-        query['properties.stato_area'] = { $regex: areaLower, $options: 'i' };
+      if (filters.area && filters.area.length > 0) {
+        const areaRegex = filters.area.map(
+          (area) => new RegExp(area.toLowerCase(), 'i'),
+        );
+        query['properties.stato_area'] = { $in: areaRegex };
       }
 
-      if (filters.intervention) {
-        const interventionLower = filters.intervention.toLowerCase();
-        query['properties.tipo_intervento'] = {
-          $regex: interventionLower,
-          $options: 'i',
-        };
+      if (filters.intervention && filters.intervention.length > 0) {
+        const interventionRegex = filters.intervention.map(
+          (intervention) => new RegExp(intervention.toLowerCase(), 'i'),
+        );
+        query['properties.tipo_intervento'] = { $in: interventionRegex };
       }
 
       if (filters.budget_min) {
         query['properties.budget_min'] = {
-          $gte: Number(filters.budget_min) || 0,
+          $gte: filters.budget_min,
         };
       }
 
       if (filters.budget_max) {
         query['properties.budget_max'] = {
-          $lte: Number(filters.budget_max) || Number.MAX_VALUE,
+          $lte: filters.budget_max,
         };
       }
 
-      if (filters.servizi_ecosistemici) {
-        const serviziEcosistemiciLower =
-          filters.servizi_ecosistemici.toLowerCase();
+      if (
+        filters.servizi_ecosistemici &&
+        filters.servizi_ecosistemici.length > 0
+      ) {
+        const serviziEcosistemiciRegex = filters.servizi_ecosistemici.map(
+          (servizio) => new RegExp(servizio.toLowerCase(), 'i'),
+        );
         query['properties.servizi_ecosistemici'] = {
-          $elemMatch: { $regex: serviziEcosistemiciLower, $options: 'i' },
+          $elemMatch: { $in: serviziEcosistemiciRegex },
         };
       }
 
